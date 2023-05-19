@@ -3,8 +3,9 @@ import Link from "next/link";
 
 function Header() {
   return (
-    <header className="h-24 flex justify-between items-center px-12">
-      <div className="flex items-center gap-8">
+    <header className="flex justify-between items-center mt-8 px-12">
+      {/* logo and left buttons */}
+      <div className="flex items-center space-x-4">
         <Image
           className="pr-5"
           src="/logo.png"
@@ -19,7 +20,10 @@ function Header() {
           <Link href="/tokens">Tokens</Link>
         </div>
       </div>
-      <div class="flex items-center justify-end gap-10">
+
+      {/* Right buttons */}
+      <div class="flex items-center justify-end space-x-5">
+        {/* Crypto currency button */}
         <div class="flex items-center p-2.5 px-3 rounded font-medium transition duration-300 hover:bg-slate-800">
           <Image
             className="pr-2.5"
@@ -30,7 +34,8 @@ function Header() {
           />
           <div>Ethereum</div>
         </div>
-        <div class="bg-[#243056] font-bold transition duration-300 text-[#5981F3] p-2.5 px-5 rounded-full hover:text-[#3b4874]">
+        {/* Connect button */}
+        <div class="p-2.5 px-5 rounded-full bg-[#243056] text-[#5981F3] font-bold transition duration-300 hover:text-[#3b4874]">
           Connect
         </div>
       </div>
