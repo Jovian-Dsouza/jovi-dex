@@ -30,14 +30,26 @@ export default function Swap() {
   }
 
   function switchToken() {
+    setPrices(null)
+    setTokenOneAmount(null)
+    setTokenTwoAmount(null)
     const one = tokenOne;
     const two = tokenTwo;
     setTokenOne(two);
     setTokenTwo(one);
+    fetchPrices(two.address, one.address)
+  }
+
+  async function fetchPrices(address1, address2) {
+    fetch(`/api/tokenPrice?addressOne=${address1}&addressTwo=${address2}`, {
+      method: "GET",
+    })
+      .then((resp) => resp.json())
+      .then((data) => setPrices(data.usdPrices));
   }
 
   useEffect(() => {
-    setPrices({ ratio: 0.8 });
+    fetchPrices(tokenOne.address, tokenTwo.address);
   }, []);
 
   const settings = (
