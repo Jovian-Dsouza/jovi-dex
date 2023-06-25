@@ -22,9 +22,9 @@ function Header() {
       </div>
 
       {/* Right buttons */}
-      <div class="flex items-center justify-end space-x-5">
+      <div className="flex items-center justify-end space-x-5">
         {/* Crypto currency button */}
-        <div class="flex items-center p-2.5 px-3 rounded font-medium transition duration-300 hover:bg-slate-800">
+        <div className="flex items-center p-2.5 px-3 rounded font-medium transition duration-300 hover:bg-slate-800">
           <Image
             className="pr-2.5"
             src="/eth.svg"
@@ -35,7 +35,7 @@ function Header() {
           <div>Ethereum</div>
         </div>
         {/* Connect button */}
-        <div class="p-2.5 px-5 rounded-full bg-[#243056] text-[#5981F3] font-bold transition duration-300 hover:text-[#3b4874]">
+        <div className="p-2.5 px-5 rounded-full bg-[#243056] text-[#5981F3] font-bold transition duration-300 hover:text-[#3b4874]">
           Connect
         </div>
       </div>
