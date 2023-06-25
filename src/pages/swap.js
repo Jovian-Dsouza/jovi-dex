@@ -14,6 +14,8 @@ export default function Swap() {
   const [slippage, setSlippage] = useState(2.5);
   const [tokenOne, setTokenOne] = useState(tokenList[0]);
   const [tokenTwo, setTokenTwo] = useState(tokenList[1]);
+  const [isOpen, setIsOpen] = useState(false);
+  const [tokenToModify, setTokenToModify] = useState();
 
   function handleSlippageChange(e) {
     setSlippage(e.target.value);
@@ -30,14 +32,47 @@ export default function Swap() {
   }
 
   function switchToken() {
+    setPrices(null);
+    setTokenOneAmount(null);
+    setTokenTwoAmount(null);
     const one = tokenOne;
     const two = tokenTwo;
     setTokenOne(two);
     setTokenTwo(one);
+    fetchPrices(two.address, one.address);
+  }
+
+  // Selecting asset
+  function openModal(assetIndex) {
+    setIsOpen(true);
+    setTokenToModify(assetIndex);
+  }
+
+  function modifyToken(i) {
+    setPrices(null);
+    setTokenOneAmount(null);
+    setTokenTwoAmount(null);
+
+    if (tokenToModify === 1) {
+      setTokenOne(tokenList[i]);
+      fetchPrices(tokenList[i].address, tokenTwo.address);
+    } else {
+      setTokenTwo(tokenList[i]);
+      fetchPrices(tokenOne.address, tokenList[i].address);
+    }
+    setIsOpen(false);
+  }
+
+  async function fetchPrices(address1, address2) {
+    fetch(`/api/tokenPrice?addressOne=${address1}&addressTwo=${address2}`, {
+      method: "GET",
+    })
+      .then((resp) => resp.json())
+      .then((data) => setPrices(data.usdPrices));
   }
 
   useEffect(() => {
-    setPrices({ ratio: 0.8 });
+    fetchPrices(tokenOne.address, tokenTwo.address);
   }, []);
 
   const settings = (
@@ -54,73 +89,109 @@ export default function Swap() {
   );
 
   return (
-    // Swap container
-    <div className="flex justify-center w-full mt-16">
-      {/* Swap box */}
-      <div className="flex flex-col justify-start items-start w-[460px] bg-[#0E111B] min-h-[360px] border-2 border-solid border-[#21273a] rounded-[15px] px-[30px]">
-        {/* Swap header and settings */}
-        <div className="flex items-center justify-between mt-4 mb-4 w-[98%]">
-          <h4 className="font-bold">Swap</h4>
-          <Popover
-            content={settings}
-            title="Settings"
-            trigger="click"
-            placement="bottomRight"
-          >
-            <SettingOutlined className="text-[#51586f] transition-all duraiton-300 hover:text-white hover:cursor-pointer hover:rotate-90" />
-          </Popover>
+    <div>
+      {/* Asset chosing modal */}
+      <Modal
+        open={isOpen}
+        footer={null}
+        onCancel={() => setIsOpen(false)}
+        title="Select a token"
+      >
+        <div className="modalContent">
+          {tokenList?.map((e, i) => (
+            <div
+              className="flex justify-start items-center pl-[20px] py-[10px] hover:cursor-pointer hover:bg-[#1f2639]"
+              key={i}
+              onClick={() => modifyToken(i)}
+            >
+              <img src={e.img} alt={e.ticker} className="w-10 h-10" />
+              <div className="tokenChoiceNames">
+                <div className="ml-[10px] font-medium text-[16px]">
+                  {e.name}
+                </div>
+                <div className="ml-[10px] text-[16px] font-light text-[#51596f]">
+                  {e.ticker}
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
+      </Modal>
 
-        {/* Price container */}
-        <div className="relative">
-          <Input
-            placeholder="0"
-            value={tokenOneAmount}
-            onChange={changeAmount}
-            disabled={!prices}
-            className="bg-red-800"
-          ></Input>
-
-          {/* Asset chosing container */}
-          <div className="absolute flex items-center justify-center space-x-2 min-w-[50px] h-[30px] top-[36px] right-[20px] pr-2 font-bold text-lg rounded-full bg-[#3a4157] hover:cursor-pointer">
-            <img src={tokenOne.img} alt="assetOneLogo" className="w-5 ml-2" />
-            <div className="uppercase">{tokenOne.ticker}</div>
-            <DownOutlined />
+      {/* // Swap container */}
+      <div className="flex justify-center w-full mt-16">
+        {/* Swap box */}
+        <div className="flex flex-col justify-start items-start w-[460px] bg-[#0E111B] min-h-[360px] border-2 border-solid border-[#21273a] rounded-[15px] px-[30px]">
+          {/* Swap header and settings */}
+          <div className="flex items-center justify-between mt-4 mb-4 w-[98%]">
+            <h4 className="font-bold">Swap</h4>
+            <Popover
+              content={settings}
+              title="Settings"
+              trigger="click"
+              placement="bottomRight"
+            >
+              <SettingOutlined className="text-[#51586f] transition-all duraiton-300 hover:text-white hover:cursor-pointer hover:rotate-90" />
+            </Popover>
           </div>
 
-          <Input
-            placeholder="0"
-            value={tokenTwoAmount}
-            disabled={true}
-            className="bg-red-800"
-          ></Input>
+          {/* Price container */}
+          <div className="relative">
+            <Input
+              placeholder="0"
+              value={tokenOneAmount}
+              onChange={changeAmount}
+              disabled={!prices}
+              className="bg-red-800"
+            ></Input>
 
-          {/* Asset chosing container */}
-          <div className="absolute flex items-center justify-center space-x-2 min-w-[50px] h-[30px] top-[135px] right-[20px] pr-2 font-bold text-lg rounded-full bg-[#3a4157] hover:cursor-pointer">
-            <img src={tokenTwo.img} alt="assetOneLogo" className="w-5 ml-2" />
-            <div className="uppercase">{tokenTwo.ticker}</div>
-            <DownOutlined />
-          </div>
+            {/* Asset chosing container */}
+            <div
+              onClick={() => openModal(1)}
+              className="absolute flex items-center justify-center space-x-2 min-w-[50px] h-[30px] top-[36px] right-[20px] pr-2 font-bold text-lg rounded-full bg-[#3a4157] hover:cursor-pointer"
+            >
+              <img src={tokenOne.img} alt="assetOneLogo" className="w-5 ml-2" />
+              <div className="uppercase">{tokenOne.ticker}</div>
+              <DownOutlined />
+            </div>
 
-          {/* Switch arrow */}
-          <div
-            onClick={switchToken}
-            className="absolute flex justify-center items-center top-[86px] left-[180px] 
+            <Input
+              placeholder="0"
+              value={tokenTwoAmount}
+              disabled={true}
+              className="bg-red-800"
+            ></Input>
+
+            {/* Asset chosing container */}
+            <div
+              onClick={() => openModal(2)}
+              className="absolute flex items-center justify-center space-x-2 min-w-[50px] h-[30px] top-[135px] right-[20px] pr-2 font-bold text-lg rounded-full bg-[#3a4157] hover:cursor-pointer"
+            >
+              <img src={tokenTwo.img} alt="assetOneLogo" className="w-5 ml-2" />
+              <div className="uppercase">{tokenTwo.ticker}</div>
+              <DownOutlined />
+            </div>
+
+            {/* Switch arrow */}
+            <div
+              onClick={switchToken}
+              className="absolute flex justify-center items-center top-[86px] left-[180px] 
                           w-7 h-7 bg-[#3a4157] text-[#5F6783] text-sm rounded-md border-[3px]
                           border-[#0E111B] hover:text-white hover:cursor-pointer"
-          >
-            <ArrowDownOutlined />
-          </div>
-
-          {/* Swap button */}
-          <div className="flex justify-center items-center mt-2 rounded-xl  h-[55px]   font-bold text-xl">
-            <button
-              className="w-full h-full rounded-xl hover:cursor-pointer text-[#5981F3] bg-[#243056] hover:bg-[#3b4874] disabled:bg-[#243056] 
-                        disabled:opacity-40 disabled:text-[#5982f39b] disabled:hover:bg-[#243056] disabled:hover:cursor-not-allowed transition duration-300"
-              disabled={!tokenOneAmount}
             >
-              Swap
-            </button>
+              <ArrowDownOutlined />
+            </div>
+
+            {/* Swap button */}
+            <div className="flex justify-center items-center mt-2 rounded-xl  h-[55px]   font-bold text-xl">
+              <button
+                className="w-full h-full rounded-xl hover:cursor-pointer text-[#5981F3] bg-[#243056] hover:bg-[#3b4874] disabled:bg-[#243056] 
+                        disabled:opacity-40 disabled:text-[#5982f39b] disabled:hover:bg-[#243056] disabled:hover:cursor-not-allowed transition duration-300"
+                disabled={!tokenOneAmount}
+              >
+                Swap
+              </button>
+            </div>
           </div>
         </div>
       </div>
